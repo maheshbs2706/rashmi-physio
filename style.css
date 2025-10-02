@@ -639,3 +639,161 @@ button.danger {
   width: auto; /* Set the width to auto */
   padding: 8px 16px; /* Add padding for consistent size */
 }
+/*
+ * General Container & Flex Settings
+ */
+.date-controls-container {
+  /* Provides a bit of internal spacing */
+  padding: 10px;
+  /* Uses Flexbox for overall layout */
+  display: flex;
+  /* Stacks the filter row and action row vertically */
+  flex-direction: column;
+  /* Aligns content to the start (left) */
+  align-items: flex-start;
+  /* Optional: Set a max width for desktop view to keep it neat */
+  max-width: 1000px;
+  margin: 0 auto; /* Center the container on large screens */
+}
+
+/*
+ * Styles for the Two Main Rows (Filter and Action)
+ */
+.flex-row {
+  display: flex;
+  /* Wraps items if there's not enough space */
+  flex-wrap: wrap;
+  /* Space between items */
+  gap: 10px;
+  /* Full width of the container */
+  width: 100%;
+  /* Adds space between the two rows */
+  margin-bottom: 10px;
+  /* Aligns items on the cross-axis (vertical center) */
+  align-items: center;
+}
+
+/*
+ * Date Input Specific Styles (Applies to the <label> tags)
+ */
+.date-input-label {
+  display: flex;
+  flex-direction: column;
+  /* Allows the date fields to take up available space,
+     but shrink if needed, and sets a minimum size. */
+  flex: 1 1 120px; /* flex-grow | flex-shrink | flex-basis */
+  min-width: 120px;
+}
+
+.date-input-field {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  /* Ensures the input field takes the full width of its label container */
+  width: 100%;
+}
+
+/*
+ * Button Specific Styles
+ */
+.control-button {
+  padding: 8px 15px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  white-space: nowrap; /* Prevents button text from wrapping */
+  /* Ensures buttons only take the space they need */
+  flex-shrink: 0;
+  height: 38px; /* Match height of date inputs for alignment */
+  align-self: flex-end; /* Aligns buttons to the bottom of the row on desktop */
+  margin-top: 15px; /* Creates visual separation from 'From/To' text */
+}
+
+.primary-button {
+    background-color: #007bff;
+    color: white;
+}
+
+.secondary-button {
+    background-color: #6c757d;
+    color: white;
+}
+
+/*
+ * 📱 PHONE/MOBILE VIEW (Less than 600px wide)
+ * This is where the magic happens for stacking
+ */
+@media (max-width: 600px) {
+  .flex-row {
+    flex-direction: column; /* Stack items vertically */
+    gap: 15px; /* Increase space when stacked */
+  }
+
+  /* Make ALL date labels and buttons take full width on mobile */
+  .date-input-label,
+  .control-button {
+    width: 100%;
+    /* Override flex-basis/min-width for full width */
+    flex: 1 1 100%;
+    /* Reset margins/alignment for stacked look */
+    margin-top: 0;
+    align-self: auto;
+  }
+}
+/*
+ * Styles for the Two Main Rows (Filter and Action)
+ */
+.flex-row {
+  display: flex;
+  flex-wrap: wrap; /* Allows wrapping on small screens */
+  gap: 10px;
+  width: 100%;
+  margin-bottom: 10px;
+  align-items: center; /* Aligns inputs and buttons vertically */
+}
+
+/*
+ * Date Input Specific Styles
+ */
+.date-input-label {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 120px; /* Key for desktop layout: grow, shrink, min-width 120px */
+  min-width: 120px;
+}
+
+/*
+ * Button Specific Styles (for alignment with date inputs)
+ */
+.control-button {
+  /* ... existing styles ... */
+  flex-shrink: 0;
+  height: 38px; /* Matches height of date inputs */
+  align-self: flex-end; /* Key for desktop layout: Aligns button bottom with input bottom */
+  margin-top: 15px; /* Pushes button down for alignment */
+}
+
+/*
+ * 📱 PHONE/MOBILE VIEW (Less than 600px wide)
+ */
+@media (max-width: 600px) {
+  .flex-row {
+    flex-direction: column; /* Stacks items vertically */
+    gap: 15px;
+  }
+
+  /* Make ALL date labels and buttons take full width on mobile */
+  .date-input-label,
+  .control-button {
+    width: 100%;
+    flex: 1 1 100%;
+    margin-top: 0; /* Removes desktop alignment margin */
+    align-self: auto;
+  }
+}
+
+#reportsView {
+     display: flex;
+    flex-direction: column;
+    align-items: stretch;
+}

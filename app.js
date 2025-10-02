@@ -66,10 +66,10 @@ byId('globalDate').addEventListener('change', (e) => {
 // ======= Dashboard =======
 let isCardView = true;  // Track the current view (card view by default)
 // Toggle between Card and List View
-toggleViewBtn.addEventListener('click', () => {
-  isCardView = !isCardView;  // Toggle the view 
-  renderCards();  // Re-render cards based on the new view mode
-});
+//toggleViewBtn.addEventListener('click', () => {
+  //isCardView = !isCardView;  // Toggle the view 
+  //renderCards();  // Re-render cards based on the new view mode
+//});
 
 function toggleActiveStatus(idx) {
   const p = patients[idx];

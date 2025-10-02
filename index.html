@@ -13,18 +13,11 @@
     <div class="actions">
       <input type="date" id="globalDate" />
       <input id="search" type="search" placeholder="Search name or phone" />
-       <!-- Toggle View Button -->
-      <button id="toggleViewBtn">
-        <span id="toggleViewIcon">📝</span>
-        <span id="toggleViewText">Switch View</span>
-      </button>
-      <!-- Dropdown Button Container -->
-      <div class="dropdown">
+       <div class="dropdown">
         <button id="toggleActionBtn" class="dropdown-btn">
           Actions <span id="dropdownIcon">▼</span>
         </button>
 
-        <!-- Dropdown Menu -->
         <div id="actionsSection" class="dropdown-content hidden">
           <button id="btnAdd">+ Add Patient</button>
           <button id="btnReport">📊 Reports</button>
@@ -37,18 +30,15 @@
   </header>
 
   <main>
-    <!-- Dashboard / Patient Cards -->
     <section id="dashboardView">
       <div id="patientList" class="patient-list"></div>
       <p id="emptyState" class="muted hidden">No patients yet. Click “+ Add Patient”.</p>
     </section>
 
 
-<!-- Reports View -->
 <section id="reportsView" class="hidden">
   <div class="panel">
     <h2>Overall Report</h2>
-    <!-- Stats Container -->
     <div class="stat-container">
       <div class="stat">
         <div class="stat-label">Patients</div>
@@ -72,20 +62,33 @@
       </div>
     </div>
 
-    <div class="row space">
-      <div class="row gap">
-        <label>From <input type="date" id="fromDate" /></label>
-        <label>To <input type="date" id="toDate" /></label>
-        <button id="btnApplyFilter">Apply</button>
-        <button id="btnClearFilter">Clear</button>
+    <div class="date-controls-container">
+      <div class="flex-row filter-controls">
+        <label class="date-input-label">
+          From
+          <input type="date" id="fromDate" class="date-input-field" />
+        </label>
+        <label class="date-input-label">
+          To
+          <input type="date" id="toDate" class="date-input-field" />
+        </label>
+        <button id="btnApplyFilter" class="control-button">
+          Apply
+        </button>
+        <button id="btnClearFilter" class="control-button ghost">
+          Clear
+        </button>
       </div>
-      <div class="row gap">
-        <button id="btnExportCSV">Export CSV</button>
-        <button id="btnPrint">Print</button>
+
+      <div class="flex-row action-controls">
+        <button id="btnExportCSV" class="control-button">
+          Export
+        </button>
+        <button id="btnPrint" class="control-button ghost">
+          Print
+        </button>
       </div>
     </div>
-
-    <!-- Report Table -->
     <div class="table-wrap">
       <table id="reportTable">
         <thead>
@@ -116,7 +119,6 @@
 
   </main>
 
-  <!-- Patient Modal -->
   <div id="patientModal" class="modal hidden">
     <div class="modal-content large">
       <div class="modal-header">
@@ -152,8 +154,7 @@
           </div>
         </form>
 
- <!-- Profile: Visits & Payments -->
-<div class="panel">
+ <div class="panel">
   <h3>Profile</h3>
   <div id="profileHeader" class="muted">Select or save a patient…</div>
 
@@ -215,7 +216,6 @@
     </div>
   </div>
   
-<!-- Payment Modal -->
 <div id="paymentModal" class="modal hidden">
   <div class="modal-content">
     <div class="modal-header">
