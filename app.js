@@ -15,11 +15,38 @@ function persist() {
 // ======= Utilities =======
 const byId = (id) => document.getElementById(id);
 function currency(n){ return '₹' + (Number(n || 0).toFixed(2)); }
-function todayStr(){ return new Date().toISOString().slice(0,10); }
-function within(dateStr, from, to){
+
+// Function to get today's date in IST (Indian Standard Time)
+function todayStr() {
+  const options = { timeZone: 'Asia/Kolkata' };
+  const today = new Date().toLocaleDateString('en-CA', options); // 'en-CA' ensures 'YYYY-MM-DD' format
+  const offset = 5 * 60 + 30; // IST offset (5 hours and 30 minutes)
+  const date = new Date();
+  date.setMinutes(date.getMinutes() - date.getTimezoneOffset() + offset); // Adjusting to IST
+
+  return date.toISOString().split('T')[0]; // 'YYYY-MM-DD' format
+}
+
+
+
+// Function to check if the date is within the range considering IST
+function within(dateStr, from, to) {
   if (!from && !to) return true;
-  const d = dateStr;
-  return (!from || d >= from) && (!to || d <= to);
+
+  const d = new Date(dateStr);
+  const fromDate = from ? new Date(from) : null;
+  const toDate = to ? new Date(to) : null;
+
+  // Adjust for IST (+5 hours and 30 minutes)
+  d.setHours(d.getHours() + 5); 
+  if (fromDate) {
+    fromDate.setHours(fromDate.getHours() + 5);
+  }
+  if (toDate) {
+    toDate.setHours(toDate.getHours() + 5);
+  }
+
+  return (!fromDate || d >= fromDate) && (!toDate || d <= toDate);
 }
 
 // ======= UI State =======
@@ -28,10 +55,13 @@ const patientForm = byId('patientForm');
 const visitForm = byId('visitForm');
 const paymentForm = byId('paymentForm');
 let currentIndex = null;
-byId('globalDate').value = currentDate;
+
+// Set the default global date to IST
+byId('globalDate').value = todayStr(); // This will be set in IST
 byId('globalDate').addEventListener('change', (e) => {
   currentDate = e.target.value || todayStr();
 });
+
 
 // ======= Dashboard =======
 let isCardView = true;  // Track the current view (card view by default)
@@ -448,11 +478,6 @@ function importJSON(file){
     }
   };
   reader.readAsText(file);
-}
-
-function todayStr() {
-  const d = new Date();
-  return d.toISOString().split('T')[0];  // YYYY-MM-DD
 }
 
 let currentPaymentFormListener = null;  // Keep track of the current listener to avoid duplicates
