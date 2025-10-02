@@ -3,21 +3,29 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Clinic Patient Manager</title>
+  <title>Rashmi Physio</title>
   <link rel="manifest" href="manifest.json">
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <header class="topbar">
-    <h1>Clinic Patient Manager</h1>
-    <div class="actions">
-      <input id="search" type="search" placeholder="Search name or phone" />
-      <button id="btnAdd">+ Add Patient</button>
-      <button id="btnReport">📊 Reports</button>
-      <button id="btnExport">⬇️ Backup</button>
-      <input id="importFile" type="file" accept="application/json" class="hidden"/>
-      <button id="btnImport">⬆️ Restore</button>
-    </div>
+    <h1>Rashmi Physio</h1>
+<div class="actions">
+  <input type="date" id="globalDate" />
+  <input id="search" type="search" placeholder="Search name or phone" />
+  <button id="btnAdd">+ Add Patient</button>
+  <button id="btnReport">📊 Reports</button>
+  <button id="btnExport">⬇️ Backup</button>
+  <input id="importFile" type="file" accept="application/json" class="hidden"/>
+  <button id="btnImport">⬆️ Restore</button>
+
+  <!-- Toggle View Button -->
+  <button id="toggleViewBtn">
+    <span id="toggleViewIcon">📝</span>  <!-- Icon or label for toggle -->
+    <span id="toggleViewText">Switch View</span>  <!-- Text indicating current view -->
+  </button>
+</div>
+
   </header>
 
   <main>
@@ -27,55 +35,77 @@
       <p id="emptyState" class="muted hidden">No patients yet. Click “+ Add Patient”.</p>
     </section>
 
-    <!-- Reports View -->
-    <section id="reportsView" class="hidden">
-      <div class="panel">
-        <h2>Overall Report</h2>
-        <div class="row gap">
-          <div class="stat"><div class="stat-label">Patients</div><div class="stat-value" id="rPatients">0</div></div>
-          <div class="stat"><div class="stat-label">Total Visits</div><div class="stat-value" id="rVisits">0</div></div>
-          <div class="stat"><div class="stat-label">Total Charges</div><div class="stat-value" id="rCharges">₹0</div></div>
-          <div class="stat"><div class="stat-label">Total Payments</div><div class="stat-value" id="rPayments">₹0</div></div>
-          <div class="stat"><div class="stat-label">Total Balance</div><div class="stat-value" id="rBalance">₹0</div></div>
-        </div>
-        <div class="row space">
-          <div class="row gap">
-            <label>From <input type="date" id="fromDate"/></label>
-            <label>To <input type="date" id="toDate"/></label>
-            <button id="btnApplyFilter">Apply</button>
-            <button id="btnClearFilter">Clear</button>
-          </div>
-          <div class="row gap">
-            <button id="btnExportCSV">Export CSV</button>
-            <button id="btnPrint">Print</button>
-          </div>
-        </div>
-        <div class="table-wrap">
-          <table id="reportTable">
-            <thead>
-              <tr>
-                <th>Patient</th>
-                <th>Phone</th>
-                <th>Visits</th>
-                <th>Total Charges</th>
-                <th>Total Payments</th>
-                <th>Balance</th>
-              </tr>
-            </thead>
-            <tbody></tbody>
-            <tfoot>
-              <tr>
-                <th colspan="2">TOTAL</th>
-                <th id="tVisits">0</th>
-                <th id="tCharges">₹0</th>
-                <th id="tPays">₹0</th>
-                <th id="tBal">₹0</th>
-              </tr>
-            </tfoot>
-          </table>
-        </div>
+
+<!-- Reports View -->
+<section id="reportsView" class="hidden">
+  <div class="panel">
+    <h2>Overall Report</h2>
+    <!-- Stats Container -->
+    <div class="stat-container">
+      <div class="stat">
+        <div class="stat-label">Patients</div>
+        <div class="stat-value" id="rPatients">0</div>
       </div>
-    </section>
+      <div class="stat">
+        <div class="stat-label">Total Visits</div>
+        <div class="stat-value" id="rVisits">0</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Total Charges</div>
+        <div class="stat-value" id="rCharges">₹0</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Total Payments</div>
+        <div class="stat-value" id="rPayments">₹0</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Total Balance</div>
+        <div class="stat-value" id="rBalance">₹0</div>
+      </div>
+    </div>
+
+    <div class="row space">
+      <div class="row gap">
+        <label>From <input type="date" id="fromDate" /></label>
+        <label>To <input type="date" id="toDate" /></label>
+        <button id="btnApplyFilter">Apply</button>
+        <button id="btnClearFilter">Clear</button>
+      </div>
+      <div class="row gap">
+        <button id="btnExportCSV">Export CSV</button>
+        <button id="btnPrint">Print</button>
+      </div>
+    </div>
+
+    <!-- Report Table -->
+    <div class="table-wrap">
+      <table id="reportTable">
+        <thead>
+          <tr>
+            <th>Patient</th>
+            <th>Phone</th>
+            <th>Visits</th>
+            <th>Total Charges</th>
+            <th>Total Payments</th>
+            <th>Balance</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+        <tfoot>
+          <tr>
+            <th colspan="2">TOTAL</th>
+            <th id="tVisits">0</th>
+            <th id="tCharges">₹0</th>
+            <th id="tPays">₹0</th>
+            <th id="tBal">₹0</th>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  </div>
+</section>
+
+
   </main>
 
   <!-- Patient Modal -->
@@ -163,6 +193,23 @@
       </div>
     </div>
   </div>
+  
+<!-- Payment Modal -->
+<div id="paymentModal" class="modal hidden">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Quick Payment</h2>
+      <button class="ghost" onclick="closePaymentModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <form id="quickPaymentForm">
+        <label>Amount (₹)<input type="number" id="quickPayAmount" required /></label>
+        <label>Date<input type="date" id="quickPayDate" value="" required /></label>
+        <button type="submit">Add Payment</button>
+      </form>
+    </div>
+  </div>
+</div>
 
   <footer class="footer muted">
     Data is saved locally in your browser (LocalStorage). Make a backup regularly.

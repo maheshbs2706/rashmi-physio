@@ -1,4 +1,6 @@
 // ======= Storage Helpers =======
+let currentDate = todayStr();
+
 const LS_KEY = "clinic_patients_v2";
 let patients = JSON.parse(localStorage.getItem(LS_KEY) || "[]");
 
@@ -26,52 +28,123 @@ const patientForm = byId('patientForm');
 const visitForm = byId('visitForm');
 const paymentForm = byId('paymentForm');
 let currentIndex = null;
+byId('globalDate').value = currentDate;
+byId('globalDate').addEventListener('change', (e) => {
+  currentDate = e.target.value || todayStr();
+});
 
 // ======= Dashboard =======
-function renderCards(filter=''){
-  const list = byId('patientList');
-  list.innerHTML = '';
-  let data = patients;
-  if (filter) {
-    data = data.filter(p => (p.name||'').toLowerCase().includes(filter) || (p.phone||'').includes(filter));
-  }
-  byId('emptyState').classList.toggle('hidden', data.length !== 0);
-  data.forEach((p, idx) => {
-    const totalCharges = (p.visits||[]).reduce((a,v)=>a+Number(v.charge||0),0);
-    const totalPayments = (p.payments||[]).reduce((a,v)=>a+Number(v.amount||0),0);
-    const balance = totalCharges - totalPayments;
-    const card = document.createElement('div');
-    card.className = 'card';
-    const imgSrc = p.photo || 'data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2272%22 height=%2272%22><rect width=%2272%22 height=%2272%22 fill=%22%23f3f4f6%22/><text x=%2236%22 y=%2238%22 font-size=%2214%22 text-anchor=%22middle%22 fill=%22%23999%22>Photo</text></svg>';
-    card.innerHTML = `
-      <div class="row">
-        <img class="avatar" src="${imgSrc}" alt="photo"/>
-        <div style="flex:1; padding-left:10px">
-          <div class="name">${p.name || ''}</div>
-          <div class="muted">${p.age||''} • ${p.gender||''}</div>
-          <div class="muted">${p.phone||''}</div>
-        </div>
-      </div>
-      <div class="row">
-        <span class="badge">₹${(p.charge||0)}/visit</span>
-        <span class="badge">Balance: ${currency(balance)}</span>
-      </div>
-      <div class="row" style="gap:8px; margin-top:6px;">
-        <button onclick="openPatient(${idx})">View</button>
-        <button class="ghost" onclick="quickVisit(${idx})">+ Visit</button>
-        <button class="ghost" onclick="quickPayment(${idx})">+ Payment</button>
-      </div>
-    `;
-    list.appendChild(card);
-  });
+let isCardView = true;  // Track the current view (card view by default)
+// Toggle between Card and List View
+toggleViewBtn.addEventListener('click', () => {
+  isCardView = !isCardView;  // Toggle the view 
+  renderCards();  // Re-render cards based on the new view mode
+});
+
+function toggleActiveStatus(idx) {
+  const p = patients[idx];
+  p.isActive = !p.isActive;  // Toggle active status
+  persist();  // Save the changes to LocalStorage
+  renderCards();  // Re-render the patient list with updated order
 }
+
+
+function renderCards(filter = '') {
+  patientList.innerHTML = '';  // Clear the current content
+  let data = patients;
+
+  // Filter patients if necessary
+  if (filter) {
+    data = data.filter(p => (p.name || '').toLowerCase().includes(filter) || (p.phone || '').includes(filter));
+  }
+
+  // Sort patients to put active ones on top
+  data.sort((a, b) => {
+    if (a.isActive === b.isActive) {
+      return 0; // No change if both have the same status
+    }
+    return a.isActive ? -1 : 1; // Active ones come first
+  });
+
+  byId('emptyState').classList.toggle('hidden', data.length !== 0);
+
+  if (isCardView) {
+    // Render in Card View (Grid)
+    patientList.classList.add('card-view');
+    patientList.classList.remove('list-view');
+    data.forEach((p, idx) => {
+      const totalCharges = (p.visits || []).reduce((a, v) => a + Number(v.charge || 0), 0);
+      const totalPayments = (p.payments || []).reduce((a, v) => a + Number(v.amount || 0), 0);
+      const balance = totalCharges - totalPayments;
+
+      const card = document.createElement('div');
+      card.className = 'card' + (visitedToday(p) ? ' highlight-card' : '') + (p.isActive ? ' active-patient' : '');
+      card.innerHTML = `
+        <div class="row">
+          <img class="avatar" src="${p.photo || 'icons/other.png'}" alt="photo"/>
+          <div style="flex:1; padding-left:10px">
+            <div class="name">${p.name || ''}</div>
+            <div class="muted">${p.age || ''} • ${p.gender || ''}</div>
+            <div class="muted">${p.phone || ''}</div>
+          </div>
+        </div>
+        <div class="row">
+          <span class="badge">₹${(p.charge || 0)}/visit</span>
+          <span class="badge ${balance < 0 ? 'positive' : (balance > 0 ? 'negative' : '')}">
+            ${balance < 0 ? 'Advance' : 'Due'}: ${currency(Math.abs(balance))}
+          </span>
+        </div>
+        <div class="row" style="gap:8px; margin-top:6px;">
+          <button onclick="openPatient(${idx})">View</button>
+          <button class="ghost" onclick="quickVisit(${idx})">+ Visit</button>
+          <button class="ghost" onclick="quickPayment(${idx})">+ Payment</button>
+          <button class="ghost" onclick="toggleActiveStatus(${idx})">${p.isActive ? 'Deactivate' : 'Activate'}</button>
+        </div>
+      `;
+      patientList.appendChild(card);
+    });
+  } else {
+    // Render in List View (Table/List)
+    patientList.classList.add('list-view');
+    patientList.classList.remove('card-view');
+    data.forEach((p, idx) => {
+      const totalCharges = (p.visits || []).reduce((a, v) => a + Number(v.charge || 0), 0);
+      const totalPayments = (p.payments || []).reduce((a, v) => a + Number(v.amount || 0), 0);
+      const balance = totalCharges - totalPayments;
+
+      const row = document.createElement('div');
+      row.className = 'list-item' + (p.isActive ? ' active-patient' : '');
+      row.innerHTML = `
+        <span class="name">${p.name || ''}</span>
+        <span class="info">${p.phone || ''}</span>
+        <span class="info">${p.age || ''} • ${p.gender || ''}</span>
+        <span class="info">₹${currency(totalCharges)}</span>
+        <span class="balance">${balance < 0 ? 'Advance' : 'Due'}: ₹${currency(Math.abs(balance))}</span>
+        <span class="status">
+          <button onclick="openPatient(${idx})">View</button>
+          <button class="ghost" onclick="quickVisit(${idx})">+ Visit</button>
+          <button class="ghost" onclick="quickPayment(${idx})">+ Payment</button>
+          <button class="ghost" onclick="toggleActiveStatus(${idx})">${p.isActive ? 'Deactivate' : 'Activate'}</button>
+        </span>
+      `;
+      patientList.appendChild(row);
+    });
+  }
+}
+
+
+// Function to check if the patient visited today
+function visitedToday(p) {
+  return (p.visits || []).some(v => v.date === todayStr());
+}
+
 
 // ======= Modals & Forms =======
 function openAddPatient(){
   currentIndex = null;
   byId('modalTitle').textContent = 'Add Patient';
   patientForm.reset();
-  byId('photoPreview').src = '';
+  byId('photoPreview').src = "icons/other.png";  // default icon for new patient
   byId('visitTable').querySelector('tbody').innerHTML = '';
   byId('paymentTable').querySelector('tbody').innerHTML = '';
   byId('profileHeader').textContent = 'Save the patient to start adding visits and payments.';
@@ -157,7 +230,7 @@ visitForm.addEventListener('submit', (e)=>{
   const visitCount = Number(byId('visitCount').value||1);
   let charge = byId('visitCharge').value;
   charge = charge ? Number(charge) : (Number(p.charge||0) * visitCount);
-  p.visits.push({ date: byId('visitDate').value || todayStr(), count: visitCount, charge });
+  p.visits.push({ date: byId('visitDate').value || currentDate, count: visitCount, charge });
   byId('visitCount').value = 1;
   byId('visitCharge').value = '';
   persist();
@@ -199,7 +272,7 @@ function quickVisit(idx){
   const p = patients[idx];
   p.visits = p.visits || [];
   const charge = Number(p.charge||0);
-  p.visits.push({ date: todayStr(), count: 1, charge });
+  p.visits.push({ date: currentDate, count: 1, charge });
   persist();
 }
 function quickPayment(idx){
@@ -223,14 +296,23 @@ function renderSubTables(){
     tr.innerHTML = `<td>${v.date}</td><td>${v.count}</td><td>${currency(v.charge)}</td><td><button class="ghost" onclick="deleteVisit(${i})">Delete</button></td>`;
     vbody.appendChild(tr);
   });
-  // payments
-  const pbody = byId('paymentTable').querySelector('tbody');
-  pbody.innerHTML = '';
-  (p.payments||[]).forEach((r,i)=>{
-    const tr = document.createElement('tr');
-    tr.innerHTML = `<td>${r.date}</td><td>${currency(r.amount)}</td><td>${r.mode||''}</td><td><button class="ghost" onclick="deletePayment(${i})">Delete</button></td>`;
-    pbody.appendChild(tr);
-  });
+
+	 // payments
+	const pbody = byId('paymentTable').querySelector('tbody');
+	pbody.innerHTML = '';
+	(p.payments||[]).forEach((r,i)=>{
+	  const tr = document.createElement('tr');
+	  const isToday = (r.date === todayStr());
+	  tr.className = isToday ? 'highlight' : '';
+	  tr.innerHTML = `
+		<td>${r.date}</td>
+		<td>${currency(r.amount)}</td>
+		<td>${r.mode||''}</td>
+		<td><button class="ghost" onclick="deletePayment(${i})">Delete</button></td>
+	  `;
+	  pbody.appendChild(tr);
+	});
+
   const sumCharges = (p.visits||[]).reduce((a,v)=>a+Number(v.charge||0),0);
   const sumPays = (p.payments||[]).reduce((a,v)=>a+Number(v.amount||0),0);
   byId('sumCharges').textContent = currency(sumCharges);
@@ -239,7 +321,40 @@ function renderSubTables(){
 }
 
 // ======= Reports =======
-function renderReports(){
+// Set the default date range to the current month
+function setDefaultDateRange() {
+  const today = new Date();
+
+  // First day of the current month
+  const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+
+  // Last day of the current month
+  // This logic is correct: month + 1, day 0 gets the last day of the previous month
+  const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0); 
+
+  // Format dates to 'YYYY-MM-DD' using local date components
+  const formatLocal = (date) => {
+    const year = date.getFullYear();
+    // getMonth() is 0-indexed, so add 1. padStart ensures '01' instead of '1'
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    // getDate() is 1-indexed
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
+  const fromDate = formatLocal(firstDay);
+  const toDate = formatLocal(lastDay);
+
+  // Set the input fields to current month
+  byId('fromDate').value = fromDate;
+  byId('toDate').value = toDate;
+
+  // Render reports with this date range
+  renderReports();
+}
+
+// Render the report with filtered patients
+function renderReports() {
   const from = byId('fromDate').value || null;
   const to = byId('toDate').value || null;
 
@@ -247,19 +362,26 @@ function renderReports(){
   tbody.innerHTML='';
   let totalVisits=0, totalCharges=0, totalPays=0;
 
-  patients.forEach(p=>{
-    const visits = (p.visits||[]).filter(v=>within(v.date,from,to));
-    const pays = (p.payments||[]).filter(r=>within(r.date,from,to));
-    const vCount = visits.reduce((a,v)=>a + Number(v.count||0),0);
-    const vCharges = visits.reduce((a,v)=>a + Number(v.charge||0),0);
-    const pSum = pays.reduce((a,v)=>a + Number(v.amount||0),0);
+  patients.forEach(p => {
+    const visits = (p.visits || []).filter(v => within(v.date, from, to));
+    const pays = (p.payments || []).filter(r => within(r.date, from, to));
+
+    // Only include patients who have visits or payments within the date range
+    if (visits.length === 0 && pays.length === 0) return;
+
+    const vCount = visits.reduce((a, v) => a + Number(v.count || 0), 0);
+    const vCharges = visits.reduce((a, v) => a + Number(v.charge || 0), 0);
+    const pSum = pays.reduce((a, v) => a + Number(v.amount || 0), 0);
     const balance = vCharges - pSum;
     totalVisits += vCount;
     totalCharges += vCharges;
     totalPays += pSum;
 
     const tr = document.createElement('tr');
-    tr.innerHTML = `<td>${p.name||''}</td><td>${p.phone||''}</td><td>${vCount}</td><td>${currency(vCharges)}</td><td>${currency(pSum)}</td><td>${currency(balance)}</td>`;
+    tr.innerHTML = `
+      <td>${p.name || ''}</td><td>${p.phone || ''}</td><td>${vCount}</td>
+      <td>${currency(vCharges)}</td><td>${currency(pSum)}</td><td>${currency(balance)}</td>
+    `;
     tbody.appendChild(tr);
   });
 
@@ -274,6 +396,16 @@ function renderReports(){
   byId('tPays').textContent = currency(totalPays);
   byId('tBal').textContent = currency(totalCharges - totalPays);
 }
+
+// Helper function to check if the date is within the range
+function within(dateStr, from, to) {
+  if (!from && !to) return true;
+  const d = new Date(dateStr);
+  const fromDate = new Date(from);
+  const toDate = new Date(to);
+  return (!from || d >= fromDate) && (!to || d <= toDate);
+}
+
 
 // Export CSV for report table
 function exportCSV(){
@@ -312,7 +444,6 @@ function importJSON(file){
       if (Array.isArray(data)){
         patients = data;
         persist();
-        alert('Restore complete.');
       } else {
         alert('Invalid backup file.');
       }
@@ -322,6 +453,74 @@ function importJSON(file){
   };
   reader.readAsText(file);
 }
+
+function todayStr() {
+  const d = new Date();
+  return d.toISOString().split('T')[0];  // YYYY-MM-DD
+}
+
+let currentPaymentFormListener = null;  // Keep track of the current listener to avoid duplicates
+
+// Open Quick Payment Modal
+function quickPayment(idx) {
+  const p = patients[idx];
+  const today = todayStr();  // Current date
+
+  // Set the default date for payment
+  byId('quickPayDate').value = today;
+  byId('quickPayAmount').value = '';  // Reset the amount field
+
+  // Show the payment modal
+  byId('paymentModal').classList.remove('hidden');
+
+  // Remove any existing event listeners before adding a new one
+  if (currentPaymentFormListener) {
+    const quickPaymentForm = byId('quickPaymentForm');
+    quickPaymentForm.removeEventListener('submit', currentPaymentFormListener);
+  }
+
+  // Define the submit handler for this popup session
+  currentPaymentFormListener = (e) => handleQuickPaymentSubmit(e, p);
+
+  // Add the event listener for form submission
+  const quickPaymentForm = byId('quickPaymentForm');
+  quickPaymentForm.addEventListener('submit', currentPaymentFormListener);
+}
+
+// Payment submit handler
+function handleQuickPaymentSubmit(e, patient) {
+  e.preventDefault();
+
+  const amount = Number(byId('quickPayAmount').value || 0);
+  const payDate = byId('quickPayDate').value || todayStr();
+
+  if (amount <= 0) return alert('Invalid amount.');
+
+  // Add payment to the patient
+  patient.payments = patient.payments || [];
+  patient.payments.push({ date: payDate, amount, mode: 'Cash' });
+
+  // Persist the changes
+  persist();  // Save the payment to LocalStorage
+
+  // Close the modal
+  closePaymentModal();
+}
+
+// Close Payment Modal
+function closePaymentModal() {
+  byId('paymentModal').classList.add('hidden');
+
+  // Remove the event listener when closing the modal to avoid duplicates
+  const quickPaymentForm = byId('quickPaymentForm');
+  if (currentPaymentFormListener) {
+    quickPaymentForm.removeEventListener('submit', currentPaymentFormListener);
+    currentPaymentFormListener = null;  // Clear the listener after removal
+  }
+}
+
+
+
 
 // ======= Nav & Events =======
 byId('btnAdd').addEventListener('click', openAddPatient);
@@ -352,4 +551,5 @@ document.querySelector('.topbar h1').addEventListener('click', ()=>{
 });
 
 // ======= Init =======
+document.addEventListener('DOMContentLoaded', setDefaultDateRange);
 renderCards();
