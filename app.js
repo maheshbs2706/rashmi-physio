@@ -555,11 +555,7 @@ byId('btnReport').addEventListener('click', ()=>{
   renderReports();
 });
 byId('btnApplyFilter').addEventListener('click', renderReports);
-byId('btnClearFilter').addEventListener('click', ()=>{
-  byId('fromDate').value=''; byId('toDate').value=''; renderReports();
-});
 byId('btnPrint').addEventListener('click', ()=>window.print());
-byId('btnExportCSV').addEventListener('click', exportCSV);
 byId('btnExport').addEventListener('click', exportJSON);
 byId('btnImport').addEventListener('click', ()=> byId('importFile').click());
 byId('importFile').addEventListener('change', (e)=>{
