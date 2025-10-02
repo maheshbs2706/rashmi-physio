@@ -8,24 +8,32 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <header class="topbar">
+ <header class="topbar">
     <h1>Rashmi Physio</h1>
-<div class="actions">
-  <input type="date" id="globalDate" />
-  <input id="search" type="search" placeholder="Search name or phone" />
-  <button id="btnAdd">+ Add Patient</button>
-  <button id="btnReport">📊 Reports</button>
-  <button id="btnExport">⬇️ Backup</button>
-  <input id="importFile" type="file" accept="application/json" class="hidden"/>
-  <button id="btnImport">⬆️ Restore</button>
+    <div class="actions">
+      <input type="date" id="globalDate" />
+      <input id="search" type="search" placeholder="Search name or phone" />
+       <!-- Toggle View Button -->
+      <button id="toggleViewBtn">
+        <span id="toggleViewIcon">📝</span>
+        <span id="toggleViewText">Switch View</span>
+      </button>
+      <!-- Dropdown Button Container -->
+      <div class="dropdown">
+        <button id="toggleActionBtn" class="dropdown-btn">
+          Actions <span id="dropdownIcon">▼</span>
+        </button>
 
-  <!-- Toggle View Button -->
-  <button id="toggleViewBtn">
-    <span id="toggleViewIcon">📝</span>  <!-- Icon or label for toggle -->
-    <span id="toggleViewText">Switch View</span>  <!-- Text indicating current view -->
-  </button>
-</div>
-
+        <!-- Dropdown Menu -->
+        <div id="actionsSection" class="dropdown-content hidden">
+          <button id="btnAdd">+ Add Patient</button>
+          <button id="btnReport">📊 Reports</button>
+          <button id="btnExport">⬇️ Backup</button>
+          <input id="importFile" type="file" accept="application/json" class="hidden"/>
+          <button id="btnImport">⬆️ Restore</button>
+        </div>
+      </div>
+    </div>
   </header>
 
   <main>
@@ -144,52 +152,65 @@
           </div>
         </form>
 
-        <!-- Profile: Visits & Payments -->
-        <div class="panel">
-          <h3>Profile</h3>
-          <div id="profileHeader" class="muted">Select or save a patient…</div>
+ <!-- Profile: Visits & Payments -->
+<div class="panel">
+  <h3>Profile</h3>
+  <div id="profileHeader" class="muted">Select or save a patient…</div>
 
-          <h4>Visits</h4>
-          <form id="visitForm" class="row gap">
-            <label>Date<input type="date" id="visitDate"/></label>
-            <label>Visit Count<input type="number" id="visitCount" min="1" value="1"/></label>
-            <label>Charge (₹)<input type="number" id="visitCharge" min="0" step="0.01"/></label>
-            <button type="submit">Add Visit</button>
-          </form>
-          <div class="table-wrap small">
-            <table id="visitTable">
-              <thead><tr><th>Date</th><th>Count</th><th>Charge (₹)</th><th></th></tr></thead>
-              <tbody></tbody>
-            </table>
-          </div>
+  <h4>Visits</h4>
+  <form id="visitForm" class="form-row">
+    <label>Date
+      <input type="date" id="visitDate"/>
+    </label>
+    <label>Visit Count
+      <input type="number" id="visitCount" min="1" value="1"/>
+    </label>
+    <label>Charge (₹)
+      <input type="number" id="visitCharge" min="0" step="0.01"/>
+    </label>
+    <button type="submit">Add Visit</button>
+  </form>
 
-          <h4>Payments</h4>
-          <form id="paymentForm" class="row gap">
-            <label>Date<input type="date" id="payDate"/></label>
-            <label>Amount (₹)<input type="number" id="payAmount" min="0" step="0.01"/></label>
-            <label>Mode
-              <select id="payMode">
-                <option>Cash</option>
-                <option>UPI</option>
-                <option>Card</option>
-                <option>Other</option>
-              </select>
-            </label>
-            <button type="submit">Add Payment</button>
-          </form>
-          <div class="table-wrap small">
-            <table id="paymentTable">
-              <thead><tr><th>Date</th><th>Amount (₹)</th><th>Mode</th><th></th></tr></thead>
-              <tbody></tbody>
-            </table>
-          </div>
+  <div class="table-wrap small">
+    <table id="visitTable">
+      <thead><tr><th>Date</th><th>Count</th><th>Charge (₹)</th><th></th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
 
-          <div class="balance row space">
-            <div><strong>Total Charges:</strong> <span id="sumCharges">₹0</span></div>
-            <div><strong>Total Payments:</strong> <span id="sumPayments">₹0</span></div>
-            <div><strong>Balance:</strong> <span id="balance">₹0</span></div>
-          </div>
-        </div>
+  <h4>Payments</h4>
+  <form id="paymentForm" class="form-row">
+    <label>Date
+      <input type="date" id="payDate"/>
+    </label>
+    <label>Amount (₹)
+      <input type="number" id="payAmount" min="0" step="0.01"/>
+    </label>
+    <label>Mode
+      <select id="payMode">
+        <option>Cash</option>
+        <option>UPI</option>
+        <option>Card</option>
+        <option>Other</option>
+      </select>
+    </label>
+    <button type="submit">Add Payment</button>
+  </form>
+
+  <div class="table-wrap small">
+    <table id="paymentTable">
+      <thead><tr><th>Date</th><th>Amount (₹)</th><th>Mode</th><th></th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <div class="balance row space">
+    <div><strong>Total Charges:</strong> <span id="sumCharges">₹0</span></div>
+    <div><strong>Total Payments:</strong> <span id="sumPayments">₹0</span></div>
+    <div><strong>Balance:</strong> <span id="balance">₹0</span></div>
+  </div>
+</div>
+
       </div>
     </div>
   </div>

@@ -173,6 +173,11 @@ function openPatient(idx){
   byId('visitDate').value = todayStr();
   byId('payDate').value = todayStr();
   byId('profileHeader').textContent = p.name + ' • ₹' + (p.charge||0) + '/visit';
+  
+  // Set the default value for the "Add Payment" amount (same as patient's charge)
+  byId('payAmount').value = p.charge || '0.00';  // Set the default payment amount
+   byId('visitCharge').value = p.charge || '0.00';  // Set the default payment amount
+  
   renderSubTables();
   patientModal.classList.remove('hidden');
 }
@@ -275,16 +280,7 @@ function quickVisit(idx){
   p.visits.push({ date: currentDate, count: 1, charge });
   persist();
 }
-function quickPayment(idx){
-  const amount = prompt('Enter payment amount (₹):');
-  if (amount==null) return;
-  const num = Number(amount);
-  if (isNaN(num) || num<=0) return alert('Invalid amount.');
-  const p = patients[idx];
-  p.payments = p.payments || [];
-  p.payments.push({ date: todayStr(), amount: num, mode: 'Cash' });
-  persist();
-}
+
 
 function renderSubTables(){
   const p = patients[currentIndex];
@@ -461,14 +457,16 @@ function todayStr() {
 
 let currentPaymentFormListener = null;  // Keep track of the current listener to avoid duplicates
 
-// Open Quick Payment Modal
+// Open Quick Payment Modal with the patient's charge as the default value
 function quickPayment(idx) {
   const p = patients[idx];
   const today = todayStr();  // Current date
 
   // Set the default date for payment
   byId('quickPayDate').value = today;
-  byId('quickPayAmount').value = '';  // Reset the amount field
+  
+  // Set the default payment amount to the patient's charge per visit (use p.charge)
+  byId('quickPayAmount').value = p.charge || '0.00';  // Use patient's charge, default to 0 if not set
 
   // Show the payment modal
   byId('paymentModal').classList.remove('hidden');
@@ -487,11 +485,12 @@ function quickPayment(idx) {
   quickPaymentForm.addEventListener('submit', currentPaymentFormListener);
 }
 
+
 // Payment submit handler
 function handleQuickPaymentSubmit(e, patient) {
   e.preventDefault();
 
-  const amount = Number(byId('quickPayAmount').value || 0);
+  const amount = Number(byId('quickPayAmount').value || 0);  // Default to 0 if no value entered
   const payDate = byId('quickPayDate').value || todayStr();
 
   if (amount <= 0) return alert('Invalid amount.');
@@ -506,6 +505,7 @@ function handleQuickPaymentSubmit(e, patient) {
   // Close the modal
   closePaymentModal();
 }
+
 
 // Close Payment Modal
 function closePaymentModal() {
@@ -551,5 +551,18 @@ document.querySelector('.topbar h1').addEventListener('click', ()=>{
 });
 
 // ======= Init =======
+ document.getElementById('toggleActionBtn').addEventListener('click', function () {
+      const actionsSection = document.getElementById('actionsSection');
+      const dropdownIcon = document.getElementById('dropdownIcon');
+      actionsSection.classList.toggle('hidden');
+      
+      // Change the icon based on visibility
+      if (actionsSection.classList.contains('hidden')) {
+        dropdownIcon.textContent = '▼';  // Show downward arrow
+      } else {
+        dropdownIcon.textContent = '▲';  // Show upward arrow
+      }
+    });
+	
 document.addEventListener('DOMContentLoaded', setDefaultDateRange);
 renderCards();
