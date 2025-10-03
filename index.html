@@ -11,20 +11,30 @@
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap" rel="stylesheet">
 
 <style>
-  h1 {
-    font-family: 'Montserrat', sans-serif;
-    font-weight: bold;
-    font-size: 2.5rem;
-    color: #008080;
-    letter-spacing: 2px; /* Optional: Adds a little spacing between letters */
-  }
-</style>
+    h1 {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: bold;
+      font-size: 2.5rem;
+      color: #008080;
+      letter-spacing: 2px; /* Optional: Adds a little spacing between letters */
+      display: flex; /* Makes the heading a flex container */
+      align-items: center; /* Vertically center the icon and text */
+    }
+
+    h1 img {
+      width: 40px; /* Adjust icon size */
+      height: 40px;
+      margin-right: 10px; /* Space between the icon and the text */
+    }
+  </style>
 
 
 </head>
 <body>
  <header class="topbar">
-    <h1>Rashmi Physio</h1>
+   <h1>
+    <img src="icons/logo.png" alt="Rashmi Physio Icon">
+  </h1>
     <div class="actions">
       <input type="date" id="globalDate" />
       <input id="search" type="search" placeholder="Search name or phone" />
