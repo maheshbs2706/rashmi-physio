@@ -243,7 +243,7 @@ patientForm.addEventListener('submit', (e)=>{
     currentIndex = patients.length - 1;
   }
   persist();
-  openPatient(currentIndex);
+  closePatientModal();
 });
 
 byId('btnDeletePatient').addEventListener('click', ()=>{
@@ -289,7 +289,6 @@ paymentForm.addEventListener('submit', (e)=>{
   const amount = Number(byId('payAmount').value||0);
   if (amount<=0) return;
   p.payments.push({ date: byId('payDate').value || todayStr(), amount, mode: byId('payMode').value });
-  byId('payAmount').value='';
   persist();
   renderSubTables();
 });
