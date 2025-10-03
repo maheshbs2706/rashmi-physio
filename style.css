@@ -277,6 +277,7 @@ button:hover { opacity: 0.9; }
   gap: 16px;  /* Increased gap between buttons */
   align-items: center;
   justify-content: flex-start;
+  right: 10px;
 }
 
 .actions button {
@@ -291,6 +292,7 @@ button:hover { opacity: 0.9; }
   justify-content: center;
   transition: background-color 0.3s ease;
   border: none;
+  margin-top: 0px;
 }
 
 .actions button:hover {
@@ -366,7 +368,6 @@ button:hover { opacity: 0.9; }
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   text-align: center;
   flex: 1;
-  margin: 8px;
 }
 
 .stat-label {
