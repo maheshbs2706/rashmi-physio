@@ -1,3 +1,31 @@
+const DB_NAME = 'ClinicDB';
+const DB_VERSION = 1;
+const DB_STORE_NAME = 'patients';
+
+// Open or create the database
+const openDB = () => {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open(DB_NAME, DB_VERSION);
+
+    request.onsuccess = (event) => {
+      resolve(event.target.result);
+    };
+
+    request.onerror = (event) => {
+      reject('Error opening IndexedDB');
+    };
+
+    // Create the object store if it doesn’t exist
+    request.onupgradeneeded = (event) => {
+      const db = event.target.result;
+      if (!db.objectStoreNames.contains(DB_STORE_NAME)) {
+        db.createObjectStore(DB_STORE_NAME, { keyPath: 'id', autoIncrement: true });
+      }
+    };
+  });
+};
+
+
 // ======= Storage Helpers =======
 let currentDate = todayStr();
 
@@ -5,12 +33,50 @@ const LS_KEY = "clinic_patients_v2";
 let patients = JSON.parse(localStorage.getItem(LS_KEY) || "[]");
 
 function persist() {
-  localStorage.setItem(LS_KEY, JSON.stringify(patients));
-  renderCards();
-  if (!document.getElementById('reportsView').classList.contains('hidden')) {
-    renderReports();
-  }
+  openDB().then((db) => {
+    const transaction = db.transaction(DB_STORE_NAME, 'readwrite');
+    const store = transaction.objectStore(DB_STORE_NAME);
+    
+    patients.forEach((patient) => {
+      store.put(patient);  // Add or update patient in IndexedDB
+    });
+
+    transaction.oncomplete = () => {
+      renderCards();  // Re-render cards after saving
+      if (!document.getElementById('reportsView').classList.contains('hidden')) {
+        renderReports();  // Re-render reports if needed
+      }
+    };
+
+    transaction.onerror = () => {
+      alert('Error saving data to IndexedDB');
+    };
+  });
 }
+
+function loadPatients() {
+  openDB().then((db) => {
+    const transaction = db.transaction(DB_STORE_NAME, 'readonly');
+    const store = transaction.objectStore(DB_STORE_NAME);
+
+    const request = store.getAll();  // Retrieve all patient records
+
+    request.onsuccess = () => {
+      patients = request.result;  // Store the result in the patients array
+      renderCards();  // Render cards with updated data
+    };
+
+    request.onerror = () => {
+      alert('Error loading data from IndexedDB');
+    };
+  });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  loadPatients();  // Load data from IndexedDB on page load
+  renderCards();  // Render cards once data is loaded
+});
+
 
 // ======= Utilities =======
 const byId = (id) => document.getElementById(id);
