@@ -565,23 +565,39 @@ function exportJSON(){
   a.download = 'clinic-backup.json';
   a.click();
 }
-function importJSON(file){
+
+function importJSON(file) {
   const reader = new FileReader();
-  reader.onload = ()=>{
-    try{
+  reader.onload = () => {
+    try {
       const data = JSON.parse(reader.result);
-      if (Array.isArray(data)){
-        patients = data;
-        persist();
-      } else {
-        alert('Invalid backup file.');
-      }
-    }catch(e){
+      if (!Array.isArray(data)) return alert('Invalid backup file.');
+
+      openDB().then(db => {
+        const transaction = db.transaction(DB_STORE_NAME, 'readwrite');
+        const store = transaction.objectStore(DB_STORE_NAME);
+
+        // Clear existing data
+        store.clear().onsuccess = () => {
+          // Insert imported data
+          data.forEach(patient => store.put(patient));
+
+          transaction.oncomplete = () => {
+            patients = data;  // Update frontend array
+            renderCards();
+            if (!document.getElementById('reportsView').classList.contains('hidden')) {
+              renderReports();
+            }
+          };
+        };
+      });
+    } catch (e) {
       alert('Invalid JSON.');
     }
   };
   reader.readAsText(file);
 }
+
 
 let currentPaymentFormListener = null;  // Keep track of the current listener to avoid duplicates
 
