@@ -1,6 +1,6 @@
 {
   "name": "Clinic Patient Manager",
-  "short_name": "Clinic",
+  "short_name": "Rashmi Physio",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#ffffff",
