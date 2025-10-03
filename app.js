@@ -519,13 +519,10 @@ function renderReports() {
     advanceDiv.classList.remove('highlight-advance');
   }
 
-  byId('rBalance').textContent = currency(totalCharges - totalPays);
-
   byId('tVisits').textContent = String(totalVisits);
   byId('tCharges').textContent = currency(totalCharges);
   byId('tPays').textContent = currency(totalPays);
-  byId('tPending').textContent = currency(totalPending); // Total Pending (Due)
-  byId('tAdv').textContent = currency(totalAdvance); // Total Remaining Advance
+  byId('tBal').textContent = currency(totalCharges - totalPays);
 }
 
 
