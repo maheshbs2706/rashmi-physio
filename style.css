@@ -798,14 +798,12 @@ button.danger {
 /* Red for balance greater than 0 (Due) */
 .highlight-balance-red {
   background-color: #ffcccc; /* Light red */
-  color: #d9534f;  /* Dark red text */
   font-weight: bold;
 }
 
 /* Green for balance less than 0 (Advance) */
 .highlight-balance-green {
   background-color: #d4edda; /* Light green */
-  color: #28a745;  /* Dark green text */
   font-weight: bold;
 }
 
@@ -813,4 +811,18 @@ button.danger {
 .report-table .normal-balance {
   background-color: white;
 }
+/* Highlight Total Pending (Due) div in Red */
+.highlight-pending {
+  background-color: #f8d7da;  /* Light red */
+  color: #721c24;             /* Dark red text */
+  font-weight: bold;
+}
+
+/* Highlight Total Remaining Advance div in Green */
+.highlight-advance {
+  background-color: #d4edda;  /* Light green */
+  color: #155724;             /* Dark green text */
+  font-weight: bold;
+}
+
 

@@ -384,7 +384,7 @@ function renderReports() {
 
   const tbody = byId('reportTable').querySelector('tbody');
   tbody.innerHTML = '';
-  let totalVisits = 0, totalCharges = 0, totalPays = 0;
+  let totalVisits = 0, totalCharges = 0, totalPays = 0, totalPending = 0, totalAdvance = 0;
 
   patients.forEach(p => {
     const visits = (p.visits || []).filter(v => within(v.date, from, to));
@@ -397,17 +397,28 @@ function renderReports() {
     const vCharges = visits.reduce((a, v) => a + Number(v.charge || 0), 0);
     const pSum = pays.reduce((a, v) => a + Number(v.amount || 0), 0);
     const balance = vCharges - pSum;
+
     totalVisits += vCount;
     totalCharges += vCharges;
     totalPays += pSum;
+
+    // Calculate total pending (positive balance)
+    if (balance > 0) {
+      totalPending += balance; // Add to total pending if balance is positive (Due)
+    }
+
+    // Calculate total remaining advance (balance < 0)
+    if (balance < 0) {
+      totalAdvance += Math.abs(balance); // Add to total advance (positive value)
+    }
 
     const tr = document.createElement('tr');
     
     // Apply classes based on balance value
     if (balance > 0) {
-      tr.classList.add('highlight-balance-red'); // Balance greater than 0 (Due)
+      tr.classList.add('highlight-balance-red'); // Due (positive balance)
     } else if (balance < 0) {
-      tr.classList.add('highlight-balance-green'); // Balance less than 0 (Advance)
+      tr.classList.add('highlight-balance-green'); // Advance (negative balance)
     }
 
     tr.innerHTML = `
@@ -417,18 +428,42 @@ function renderReports() {
     tbody.appendChild(tr);
   });
 
+  // Display total data in the summary section
   byId('rPatients').textContent = String(patients.length);
   byId('rVisits').textContent = String(totalVisits);
   byId('rCharges').textContent = currency(totalCharges);
   byId('rPayments').textContent = currency(totalPays);
+
+  // Set the appropriate color based on the value for Total Pending (Due)
+  const pendingElement = byId('rPending');
+  pendingElement.textContent = currency(totalPending); // Total Pending (Due)
+  const pendingDiv = byId('pendingDiv');
+  if (totalPending > 0) {
+    pendingDiv.classList.add('highlight-pending');
+    pendingDiv.classList.remove('highlight-advance');
+  } else {
+    pendingDiv.classList.remove('highlight-pending');
+  }
+
+  // Set the appropriate color based on the value for Total Remaining Advance
+  const advanceElement = byId('rAdvance');
+  advanceElement.textContent = currency(totalAdvance); // Total Remaining Advance
+   const advanceDiv = byId('advanceDiv');
+  if (totalAdvance > 0) {
+    advanceDiv.classList.add('highlight-advance');
+    advanceDiv.classList.remove('highlight-pending');
+  } else {
+    advanceDiv.classList.remove('highlight-advance');
+  }
+
   byId('rBalance').textContent = currency(totalCharges - totalPays);
 
   byId('tVisits').textContent = String(totalVisits);
   byId('tCharges').textContent = currency(totalCharges);
   byId('tPays').textContent = currency(totalPays);
-  byId('tBal').textContent = currency(totalCharges - totalPays);
+  byId('tPending').textContent = currency(totalPending); // Total Pending (Due)
+  byId('tAdv').textContent = currency(totalAdvance); // Total Remaining Advance
 }
-
 
 
 // Helper function to check if the date is within the range
