@@ -18,15 +18,12 @@ function currency(n){ return '₹' + (Number(n || 0).toFixed(2)); }
 
 // Function to get today's date in IST (Indian Standard Time)
 function todayStr() {
-  const options = { timeZone: 'Asia/Kolkata' };
-  const today = new Date().toLocaleDateString('en-CA', options); // 'en-CA' ensures 'YYYY-MM-DD' format
-  const offset = 5 * 60 + 30; // IST offset (5 hours and 30 minutes)
   const date = new Date();
-  date.setMinutes(date.getMinutes() - date.getTimezoneOffset() + offset); // Adjusting to IST
-
-  return date.toISOString().split('T')[0]; // 'YYYY-MM-DD' format
+  // Format the date as an ISO string, but specifying the timezone.
+  // The 'en-CA' locale already ensures 'YYYY-MM-DD'
+  const options = { timeZone: 'Asia/Kolkata' };
+  return date.toLocaleDateString('en-CA', options);
 }
-
 
 
 // Function to check if the date is within the range considering IST
