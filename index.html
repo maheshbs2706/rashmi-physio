@@ -11,20 +11,37 @@
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap" rel="stylesheet">
 
 <style>
+    /* Default: For larger screens (Web) */
     h1 {
       font-family: 'Montserrat', sans-serif;
       font-weight: bold;
       font-size: 2.5rem;
       color: #008080;
-      letter-spacing: 2px; /* Optional: Adds a little spacing between letters */
-      display: flex; /* Makes the heading a flex container */
-      align-items: center; /* Vertically center the icon and text */
+      letter-spacing: 2px;
+      display: flex;
+      align-items: center;
     }
 
     h1 img {
-      width: 40px; /* Adjust icon size */
-      height: 40px;
-      margin-right: 10px; /* Space between the icon and the text */
+      display: none; /* Hide the image by default */
+    }
+
+    /* For smaller screens (Phones) */
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 2rem; /* Adjust font size for mobile */
+      }
+
+      h1 img {
+        display: inline-block; /* Show the image */
+        width: 175px; /* Adjust icon size */
+        height: 150px;
+        margin-right: 10px; /* Space between the icon and the text */
+      }
+
+      h1 span {
+        display: none; /* Hide text on mobile */
+      }
     }
   </style>
 
@@ -33,6 +50,7 @@
 <body>
  <header class="topbar">
    <h1>
+   <span>Rashmi Physio</span>
     <img src="icons/logo.png" alt="Rashmi Physio Icon">
   </h1>
     <div class="actions">
