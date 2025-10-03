@@ -24,7 +24,7 @@ main { padding:16px; }
 .modal-header { display:flex; justify-content:space-between; align-items:center; padding:12px 16px; border-bottom:1px solid #e5e7eb; }
 .modal-body { padding:16px; }
 .grid-2 { display:grid; grid-template-columns: 420px 1fr; gap:14px; }
-.panel { background:var(--card); border:1px solid #e5e7eb; border-radius:12px; padding:12px; display:flex; flex-direction:column; gap:10px;width: 95%; }
+.panel { background:var(--card); border:1px solid #e5e7eb; border-radius:12px; padding:12px; display:flex; flex-direction:column; gap:10px;}
 label { display:flex; flex-direction:column; gap:6px; font-size:.9rem; }
 input[type=text], input[type=number], input[type=date], select, textarea { border:1px solid #e5e7eb; border-radius:8px; padding:8px 10px; width:100%; background:white; }
 textarea { min-height:70px; resize:vertical; }
@@ -363,10 +363,10 @@ button:hover { opacity: 0.9; }
 /* Report Stats Cards */
 .stat {
   background: #fff;
-  border-radius: 12px;
-  padding: 16px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  text-align: center;
+	border-radius: 12px;
+    padding: 16px;
+    box-shadow: 0 0px 30px rgb(13 58 133);
+    text-align: center;
   flex: 1;
 }
 
