@@ -423,10 +423,6 @@ th {
   border-bottom: 2px solid #ddd;
 }
 
-td {
-  background-color: #f9fafb;
-}
-
 tr:hover {
   background-color: #f1f5f9;
   transform: translateY(-3px);
@@ -798,3 +794,23 @@ button.danger {
     flex-direction: column;
     align-items: stretch;
 }
+
+/* Red for balance greater than 0 (Due) */
+.highlight-balance-red {
+  background-color: #ffcccc; /* Light red */
+  color: #d9534f;  /* Dark red text */
+  font-weight: bold;
+}
+
+/* Green for balance less than 0 (Advance) */
+.highlight-balance-green {
+  background-color: #d4edda; /* Light green */
+  color: #28a745;  /* Dark green text */
+  font-weight: bold;
+}
+
+/* Normal state (no special color) */
+.report-table .normal-balance {
+  background-color: white;
+}
+

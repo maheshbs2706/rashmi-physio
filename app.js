@@ -267,7 +267,6 @@ visitForm.addEventListener('submit', (e)=>{
   charge = charge ? Number(charge) : (Number(p.charge||0) * visitCount);
   p.visits.push({ date: byId('visitDate').value || currentDate, count: visitCount, charge });
   byId('visitCount').value = 1;
-  byId('visitCharge').value = '';
   persist();
   renderSubTables();
 });
@@ -384,8 +383,8 @@ function renderReports() {
   const to = byId('toDate').value || null;
 
   const tbody = byId('reportTable').querySelector('tbody');
-  tbody.innerHTML='';
-  let totalVisits=0, totalCharges=0, totalPays=0;
+  tbody.innerHTML = '';
+  let totalVisits = 0, totalCharges = 0, totalPays = 0;
 
   patients.forEach(p => {
     const visits = (p.visits || []).filter(v => within(v.date, from, to));
@@ -403,6 +402,14 @@ function renderReports() {
     totalPays += pSum;
 
     const tr = document.createElement('tr');
+    
+    // Apply classes based on balance value
+    if (balance > 0) {
+      tr.classList.add('highlight-balance-red'); // Balance greater than 0 (Due)
+    } else if (balance < 0) {
+      tr.classList.add('highlight-balance-green'); // Balance less than 0 (Advance)
+    }
+
     tr.innerHTML = `
       <td>${p.name || ''}</td><td>${p.phone || ''}</td><td>${vCount}</td>
       <td>${currency(vCharges)}</td><td>${currency(pSum)}</td><td>${currency(balance)}</td>
@@ -421,6 +428,8 @@ function renderReports() {
   byId('tPays').textContent = currency(totalPays);
   byId('tBal').textContent = currency(totalCharges - totalPays);
 }
+
+
 
 // Helper function to check if the date is within the range
 function within(dateStr, from, to) {
