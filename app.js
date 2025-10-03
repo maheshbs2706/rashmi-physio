@@ -571,18 +571,38 @@ document.querySelector('.topbar h1').addEventListener('click', ()=>{
 });
 
 // ======= Init =======
- document.getElementById('toggleActionBtn').addEventListener('click', function () {
-      const actionsSection = document.getElementById('actionsSection');
-      const dropdownIcon = document.getElementById('dropdownIcon');
-      actionsSection.classList.toggle('hidden');
-      
-      // Change the icon based on visibility
-      if (actionsSection.classList.contains('hidden')) {
-        dropdownIcon.textContent = '▼';  // Show downward arrow
-      } else {
-        dropdownIcon.textContent = '▲';  // Show upward arrow
-      }
-    });
+document.getElementById('toggleActionBtn').addEventListener('click', function () {
+  const actionsSection = document.getElementById('actionsSection');
+  const dropdownIcon = document.getElementById('dropdownIcon');
+  actionsSection.classList.toggle('hidden');
+  
+  // Change the icon based on visibility
+  if (actionsSection.classList.contains('hidden')) {
+    dropdownIcon.textContent = '▼';  // Show downward arrow
+  } else {
+    dropdownIcon.textContent = '▲';  // Show upward arrow
+  }
+});
+
+// Close the dropdown if clicked outside or on an element inside the dropdown
+document.addEventListener('click', function(event) {
+  const actionsSection = document.getElementById('actionsSection');
+  const toggleActionBtn = document.getElementById('toggleActionBtn');
+  
+  // Check if the click is outside the actions section and toggle button
+  if (!actionsSection.contains(event.target) && event.target !== toggleActionBtn) {
+    if (!actionsSection.classList.contains('hidden')) {
+      toggleActionBtn.click();  // Trigger the click event to hide the dropdown
+    }
+  }
+
+  // If a click happens inside the dropdown on any child element (e.g., a list item or button), close the dropdown
+  if (actionsSection.contains(event.target) && event.target !== toggleActionBtn) {
+    toggleActionBtn.click();  // Close the dropdown if any child element inside is clicked
+  }
+});
+
+
 	
 document.addEventListener('DOMContentLoaded', setDefaultDateRange);
 renderCards();
