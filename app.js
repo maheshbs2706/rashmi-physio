@@ -409,7 +409,19 @@ function quickVisit(idx){
   const charge = Number(p.charge||0);
   p.visits.push({ date: currentDate, count: 1, charge });
   persist();
+
+  // Highlight effect on the card
+  setTimeout(() => {
+    const patientCards = document.querySelectorAll('#patientList .card, #patientList .list-item');
+    if (patientCards[idx]) {
+      patientCards[idx].classList.add('flash-highlight');
+      setTimeout(() => {
+        patientCards[idx].classList.remove('flash-highlight');
+      }, 1000); // remove after 1 second
+    }
+  }, 100); // slight delay so DOM updates first
 }
+
 
 
 function renderSubTables(){
@@ -619,11 +631,17 @@ function importJSON(file) {
         // Clear existing data
         store.clear().onsuccess = () => {
           // Insert imported data
-          data.forEach(patient => store.put(patient));
+          data.forEach(patient => {
+            // ensure no invalid id
+            if (patient.id === undefined || patient.id === null) {
+              delete patient.id;
+            }
+            store.put(patient);
+          });
 
           transaction.oncomplete = () => {
-            patients = data;  // Update frontend array
-            renderCards();
+            // 🔑 Instead of using "data", reload from IndexedDB
+            loadPatients();  
             if (!document.getElementById('reportsView').classList.contains('hidden')) {
               renderReports();
             }
@@ -636,6 +654,7 @@ function importJSON(file) {
   };
   reader.readAsText(file);
 }
+
 
 
 let currentPaymentFormListener = null;  // Keep track of the current listener to avoid duplicates

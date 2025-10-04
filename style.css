@@ -826,3 +826,12 @@ button.danger {
 }
 
 
+.flash-highlight {
+  animation: flash 1s ease-out;
+}
+
+@keyframes flash {
+  0%   { background-color: #fff8c4; } /* light yellow */
+  50%  { background-color: #ffe066; } /* brighter */
+  100% { background-color: transparent; }
+}
