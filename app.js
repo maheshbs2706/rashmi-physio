@@ -26,58 +26,6 @@ const openDB = () => {
 };
 
 
-// ======= Storage Helpers =======
-let currentDate = todayStr();
-
-const LS_KEY = "clinic_patients_v2";
-let patients = JSON.parse(localStorage.getItem(LS_KEY) || "[]");
-
-function persist() {
-  openDB().then((db) => {
-    const transaction = db.transaction(DB_STORE_NAME, 'readwrite');
-    const store = transaction.objectStore(DB_STORE_NAME);
-    
-    patients.forEach((patient) => {
-      store.put(patient);  // Add or update patient in IndexedDB
-    });
-
-    transaction.oncomplete = () => {
-      renderCards();  // Re-render cards after saving
-      if (!document.getElementById('reportsView').classList.contains('hidden')) {
-        renderReports();  // Re-render reports if needed
-      }
-    };
-
-    transaction.onerror = () => {
-      alert('Error saving data to IndexedDB');
-    };
-  });
-}
-
-function loadPatients() {
-  openDB().then((db) => {
-    const transaction = db.transaction(DB_STORE_NAME, 'readonly');
-    const store = transaction.objectStore(DB_STORE_NAME);
-
-    const request = store.getAll();  // Retrieve all patient records
-
-    request.onsuccess = () => {
-      patients = request.result;  // Store the result in the patients array
-      renderCards();  // Render cards with updated data
-    };
-
-    request.onerror = () => {
-      alert('Error loading data from IndexedDB');
-    };
-  });
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-  loadPatients();  // Load data from IndexedDB on page load
-  renderCards();  // Render cards once data is loaded
-});
-
-
 // ======= Utilities =======
 const byId = (id) => document.getElementById(id);
 function currency(n){ return '₹' + (Number(n || 0).toFixed(2)); }
@@ -284,9 +232,70 @@ byId('photo').addEventListener('change', (e)=>{
   reader.readAsDataURL(file);
 });
 
+// ======= Storage Helpers =======
+let currentDate = todayStr();
+
+const LS_KEY = "clinic_patients_v2";
+let patients = JSON.parse(localStorage.getItem(LS_KEY) || "[]");
+
+// persist entire patients array to IndexedDB (update or insert)
+function persist() {
+  openDB().then((db) => {
+    const transaction = db.transaction(DB_STORE_NAME, 'readwrite');
+    const store = transaction.objectStore(DB_STORE_NAME);
+
+    patients.forEach((patient, idx) => {
+      // ensure each patient keeps its id
+      const req = store.put(patient);
+      req.onsuccess = (event) => {
+        if (!patient.id) {
+          patient.id = event.target.result; // assign auto id back
+          patients[idx] = patient;
+        }
+      };
+    });
+
+    transaction.oncomplete = () => {
+      renderCards();  
+      if (!document.getElementById('reportsView').classList.contains('hidden')) {
+        renderReports();  
+      }
+    };
+
+    transaction.onerror = () => {
+      alert('Error saving data to IndexedDB');
+    };
+  });
+}
+
+function loadPatients() {
+  openDB().then((db) => {
+    const transaction = db.transaction(DB_STORE_NAME, 'readonly');
+    const store = transaction.objectStore(DB_STORE_NAME);
+
+    const request = store.getAll();  
+
+    request.onsuccess = () => {
+      patients = request.result || [];   // keep id field from DB
+      renderCards();  
+    };
+
+    request.onerror = () => {
+      alert('Error loading data from IndexedDB');
+    };
+  });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  loadPatients();  
+  renderCards();  
+});
+
+// ======= Patient Form Save =======
 patientForm.addEventListener('submit', (e)=>{
   e.preventDefault();
   const payload = {
+    id: currentIndex!=null ? patients[currentIndex].id : undefined, // preserve id if editing
     name: byId('name').value.trim(),
     age: Number(byId('age').value||0),
     gender: byId('gender').value,
@@ -299,25 +308,55 @@ patientForm.addEventListener('submit', (e)=>{
     visits: currentIndex!=null ? (patients[currentIndex].visits||[]) : [],
     payments: currentIndex!=null ? (patients[currentIndex].payments||[]) : []
   };
+
   if (currentIndex!=null){
     patients[currentIndex] = payload;
   } else {
     patients.push(payload);
     currentIndex = patients.length - 1;
   }
-  persist();
+
+  // save directly to DB
+  openDB().then(db => {
+    const tx = db.transaction(DB_STORE_NAME, 'readwrite');
+    const store = tx.objectStore(DB_STORE_NAME);
+	// Ensure id is valid for IndexedDB
+	if (payload.id === undefined || payload.id === null) {
+	  delete payload.id;   // let IndexedDB auto-generate the id
+	}
+    const req = store.put(payload);
+    req.onsuccess = (event) => {
+      if (!payload.id) {
+        payload.id = event.target.result;
+        patients[currentIndex] = payload;
+      }
+      renderCards();
+    };
+  });
+
   closePatientModal();
 });
 
+
+// ======= Delete Patient =======
 byId('btnDeletePatient').addEventListener('click', ()=>{
   if (currentIndex==null) return;
+  const patient = patients[currentIndex];
+  if (!patient) return;
   if (confirm('Delete this patient and all their data?')){
-    patients.splice(currentIndex,1);
-    currentIndex=null;
-    persist();
-    closePatientModal();
+    openDB().then(db => {
+      const tx = db.transaction(DB_STORE_NAME, 'readwrite');
+      const store = tx.objectStore(DB_STORE_NAME);
+      store.delete(patient.id).onsuccess = () => {
+        patients.splice(currentIndex,1);
+        currentIndex=null;
+        renderCards();
+        closePatientModal();
+      };
+    });
   }
 });
+
 
 // ======= Visits =======
 visitForm.addEventListener('submit', (e)=>{
